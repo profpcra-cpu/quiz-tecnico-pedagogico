@@ -56,10 +56,11 @@
 
         .profile-box {
             background: var(--input-bg); border: 1px solid var(--card-border);
-            border-radius: var(--radius-md); padding: 16px; margin-bottom: 24px;
+            border-radius: var(--radius-md); padding: 18px; margin-bottom: 24px;
         }
         .profile-box label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 6px; color: var(--text-muted); }
-        .profile-inputs { display: flex; gap: 8px; }
+        .input-group { margin-bottom: 12px; }
+        .profile-inputs-row { display: flex; gap: 8px; }
         input, select {
             width: 100%; padding: 10px 12px; border: 1px solid var(--card-border);
             border-radius: var(--radius-md); font-size: 13.5px; font-family: inherit;
@@ -67,8 +68,8 @@
         }
         .btn-main {
             background: linear-gradient(135deg, var(--btn-primary), #8b5cf6); color: #fff;
-            border: none; padding: 10px 16px; border-radius: var(--radius-md); font-weight: 700;
-            cursor: pointer; width: 100%; font-size: 14px; margin-top: 10px;
+            border: none; padding: 11px 16px; border-radius: var(--radius-md); font-weight: 700;
+            cursor: pointer; width: 100%; font-size: 14px; margin-top: 6px;
         }
         .btn-main:hover { opacity: 0.9; }
 
@@ -96,18 +97,26 @@
         </div>
 
         <h1>🧠 Brain Hub - Central Pedagógica</h1>
-        <p class="subtitle">Selecione o seu perfil de participante e escolha o módulo de aprendizagem.</p>
+        <p class="subtitle">Cadastre os seus dados para desbloquear e aceder aos módulos de jogos.</p>
 
-        <!-- Ecrã de Identificação -->
+        <!-- Ecrã de Identificação (Nome e E-mail) -->
         <div id="setup-screen" class="profile-box">
-            <label for="input-nome">Identificação do Participante</label>
-            <div class="profile-inputs" style="margin-bottom: 10px;">
-                <select id="select-avatar" style="width: 70px; text-align: center;">
-                    <option value="👨‍🏫">👨‍🏫</option><option value="👩‍🏫">👩‍🏫</option><option value="💡">💡</option><option value="🚀">🚀</option><option value="🎓">🎓</option>
-                </select>
-                <input type="text" id="input-nome" placeholder="Digite o seu nome completo...">
+            <div class="input-group">
+                <label for="input-nome">Nome Completo</label>
+                <div class="profile-inputs-row">
+                    <select id="select-avatar" style="width: 75px; text-align: center;">
+                        <option value="👨‍🏫">👨‍🏫</option><option value="👩‍🏫">👩‍🏫</option><option value="💡">💡</option><option value="🚀">🚀</option><option value="🎓">🎓</option>
+                    </select>
+                    <input type="text" id="input-nome" placeholder="Digite o seu nome completo...">
+                </div>
             </div>
-            <button class="btn-main" id="btn-salvar-perfil">Salvar Identificação e Desbloquear Módulos</button>
+            
+            <div class="input-group">
+                <label for="input-email">E-mail Institucional ou Pessoal</label>
+                <input type="email" id="input-email" placeholder="exemplo@escola.se.df.gov.br">
+            </div>
+
+            <button class="btn-main" id="btn-salvar-perfil">Salvar Registo e Desbloquear Módulos</button>
         </div>
 
         <!-- Lista de Módulos (Quizzes e Simuladores) -->
@@ -145,9 +154,10 @@
             themeBtn.textContent = next === 'dark' ? '☀️ Claro' : '🌙 Escuro';
         });
 
-        // Gestão de Utilizador Global
+        // Gestão de Utilizador Global (Nome e E-mail)
         const setupScreen = document.getElementById('setup-screen');
         const inputNome = document.getElementById('input-nome');
+        const inputEmail = document.getElementById('input-email');
         const selectAvatar = document.getElementById('select-avatar');
         const btnSalvar = document.getElementById('btn-salvar-perfil');
         const welcomeHeader = document.getElementById('welcome-header');
@@ -156,11 +166,12 @@
 
         function verificarSessao() {
             const nomeSalvo = localStorage.getItem('brain_hub_nome');
+            const emailSalvo = localStorage.getItem('brain_hub_email');
             const avatarSalvo = localStorage.getItem('brain_hub_avatar');
 
-            if (nomeSalvo) {
+            if (nomeSalvo && emailSalvo) {
                 setupScreen.style.display = 'none';
-                welcomeHeader.innerHTML = `<div class="user-badge"><span>${avatarSalvo || '👨‍🏫'}</span> Olá, ${nomeSalvo} (<a href="#" id="trocar-nome" style="color:var(--btn-primary); font-size:12px; text-decoration:none;">alterar</a>)</div>`;
+                welcomeHeader.innerHTML = `<div class="user-badge"><span>${avatarSalvo || '👨‍🏫'}</span> ${nomeSalvo} (${emailSalvo}) <a href="#" id="trocar-nome" style="color:var(--btn-primary); font-size:12px; text-decoration:none; margin-left:6px;">[alterar]</a></div>`;
                 modQuiz.classList.remove('locked');
                 modSimulador.classList.remove('locked');
             }
@@ -168,12 +179,21 @@
 
         btnSalvar.addEventListener('click', () => {
             const nome = inputNome.value.trim();
+            const email = inputEmail.value.trim();
+
             if (!nome) {
-                alert('Por favor, digite o seu nome.');
+                alert('Por favor, digite o seu nome completo.');
                 inputNome.focus();
                 return;
             }
+            if (!email || !email.includes('@')) {
+                alert('Por favor, digite um e-mail válido.');
+                inputEmail.focus();
+                return;
+            }
+
             localStorage.setItem('brain_hub_nome', nome);
+            localStorage.setItem('brain_hub_email', email);
             localStorage.setItem('brain_hub_avatar', selectAvatar.value);
             verificarSessao();
         });
@@ -182,6 +202,7 @@
             if (e.target && e.target.id === 'trocar-nome') {
                 e.preventDefault();
                 localStorage.removeItem('brain_hub_nome');
+                localStorage.removeItem('brain_hub_email');
                 localStorage.removeItem('brain_hub_avatar');
                 location.reload();
             }
