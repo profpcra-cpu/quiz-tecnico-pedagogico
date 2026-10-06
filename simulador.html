@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="pt" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Relações Humanas | Brain Hub</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b1020;
+            --card-bg: rgba(30, 41, 59, 0.85);
+            --card-border: rgba(148, 163, 184, 0.15);
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --btn-primary: #6366f1;
+            --btn-hover: #818cf8;
+            --input-bg: rgba(15, 23, 42, 0.7);
+            --radius-lg: 20px;
+            --radius-md: 12px;
+        }
+        [data-theme="light"] {
+            --bg-color: #eef2ff;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-border: rgba(15, 23, 42, 0.08);
+            --text-color: #0f172a;
+            --text-muted: #475569;
+            --input-bg: rgba(255, 255, 255, 0.95);
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            padding: 30px;
+            width: 100%;
+            max-width: 700px;
+            box-shadow: 0 20px 60px -20px rgba(0,0,0,0.5);
+        }
+        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; font-weight: 600; }
+        .back-link:hover { color: var(--text-color); }
+        .user-badge-display { font-size: 13px; font-weight: 600; color: var(--btn-primary); background: var(--input-bg); padding: 6px 12px; border-radius: 999px; border: 1px solid var(--card-border); }
+        
+        h1 { font-size: 22px; margin: 0 0 6px 0; }
+        p.subtitle { font-size: 13.5px; color: var(--text-muted); margin: 0 0 20px 0; }
+
+        .scenario-box {
+            background: var(--input-bg); border: 1px solid var(--card-border);
+            border-radius: var(--radius-md); padding: 20px; margin-bottom: 20px;
+        }
+        .scenario-text { font-size: 14.5px; line-height: 1.6; margin-bottom: 18px; }
+        .choices-list { display: flex; flex-direction: column; gap: 10px; }
+        .choice-btn {
+            background: var(--card-bg); border: 1px solid var(--card-border);
+            color: var(--text-color); padding: 12px 16px; border-radius: var(--radius-md);
+            text-align: left; font-size: 13.5px; font-family: inherit; cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .choice-btn:hover { border-color: var(--btn-primary); background: rgba(99, 102, 241, 0.1); }
+        .results-box { text-align: center; padding: 20px; display: none; }
+        .btn-main {
+            background: linear-gradient(135deg, var(--btn-primary), #8b5cf6); color: #fff;
+            border: none; padding: 12px 20px; border-radius: var(--radius-md); font-weight: 700;
+            cursor: pointer; width: 100%; font-size: 14px; margin-top: 15px; display: inline-block; text-decoration: none; text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header-top">
+            <a href="index.html" class="back-link">← Voltar ao Hub</a>
+            <div id="user-info-badge" class="user-badge-display">Carregando utilizador...</div>
+        </div>
+
+        <h1>🧭 Simulador de Relações Humanas</h1>
+        <p class="subtitle">Tomada de decisão em cenários de gestão de conflitos e práxis institucional.</p>
+
+        <div id="simulador-container">
+            <div class="scenario-box">
+                <div id="texto-cenario" class="scenario-text">A carregar cenário...</div>
+                <div class="choices-list" id="lista-escolhas"></div>
+            </div>
+        </div>
+
+        <div id="results-container" class="results-box">
+            <h2>🎯 Simulação Concluída com Sucesso!</h2>
+            <p id="texto-feedback-final" style="font-size: 14.5px; line-height: 1.6; margin: 15px 0;"></p>
+            <p style="font-size: 13px; color: var(--text-muted);">As suas decisões e dados de identificação foram registados no servidor.</p>
+            <a href="index.html" class="btn-main">Retornar ao Brain Hub</a>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        // Configuração do Firebase (Substitua pelas credenciais do seu projeto)
+        const firebaseConfig = {
+            databaseURL: "SUA_URL_DO_FIREBASE_AQUI.firebasedatabase.app"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Validar Sessão do Hub Central
+        const nome = localStorage.getItem('brain_hub_nome');
+        const email = localStorage.getItem('brain_hub_email');
+        const avatar = localStorage.getItem('brain_hub_avatar') || '💡';
+
+        if (!nome || !email) {
+            alert('Por favor, faça o registo com Nome e E-mail no Brain Hub antes de aceder ao simulador.');
+            window.location.href = 'index.html';
+        } else {
+            document.getElementById('user-info-badge').textContent = `${avatar} ${nome}`;
+        }
+
+        const etapas = [
+            {
+                texto: "Durante a coordenação pedagógica mensal no CEP-ETP, nota-se divergência acentuada entre professores recém-chegados e o núcleo mais antigo acerca da flexibilização dos prazos de entrega de diários de classe. Como gestor(a), qual a melhor abordagem?",
+                escolhas: [
+                    { texto: "Impor imediatamente o cumprimento do regimento interno sem espaço para negociação.", pontos: 1, feedback: "Abordagem estritamente burocrática que pode intensificar resistências locais." },
+                    { texto: "Promover uma roda de diálogo horizontal (práxis freiriana) para escutar as dificuldades de ambos os grupos e construir um acordo coletivo.", pontos: 3, feedback: "Excelente! Alinha-se perfeitamente aos princípios de gestão democrática e escuta ativa." },
+                    { texto: "Ignorar o conflito esperando que os professores se ajustem sozinhos ao longo do semestre.", pontos: 0, feedback: "A omissão da liderança agrava os atritos institucionais." }
+                ]
+            },
+            {
+                texto: "Um professor relata sobrecarga de trabalho devido aos compromissos de estágio supervisionado do curso técnico em Enfermagem. A proposta para solucionar o impasse é:",
+                escolhas: [
+                    { texto: "Reestruturar colaborativamente o cronograma de supervisão e redistribuir orientações de forma equilibrada.", pontos: 3, feedback: "Demonstra empatia pedagógica e planeamento estratégico adequado." },
+                    { texto: "Dizer ao docente que todos enfrentam o mesmo nível de exigência e que deve cumprir a carga horária sem exceções.", pontos: 1, feedback: "Postura pouco empática que pode gerar desmotivação e desgaste na equipa." }
+                ]
+            }
+        ];
+
+        let etapaAtual = 0;
+        let pontuacaoTotal = 0;
+
+        const textoCenario = document.getElementById('texto-cenario');
+        const listaEscolhas = document.getElementById('lista-escolhas');
+        const simuladorContainer = document.getElementById('simulador-container');
+        const resultsContainer = document.getElementById('results-container');
+        const textoFeedbackFinal = document.getElementById('texto-feedback-final');
+
+        function carregarEtapa() {
+            const etapa = etapas[etapaAtual];
+            textoCenario.textContent = etapa.texto;
+            listaEscolhas.innerHTML = '';
+
+            etapa.escolhas.forEach((escolha) => {
+                const btn = document.createElement('button');
+                btn.className = 'choice-btn';
+                btn.textContent = escolha.texto;
+                btn.onclick = () => avancarEtapa(escolha.pontos, escolha.feedback);
+                listaEscolhas.appendChild(btn);
+            });
+        }
+
+        function avancarEtapa(pontos, feedback) {
+            pontuacaoTotal += pontos;
+            etapaAtual++;
+
+            if (etapaAtual < etapas.length) {
+                carregarEtapa();
+            } else {
+                finalizarSimulacao();
+            }
+        }
+
+        function finalizarSimulacao() {
+            simuladorContainer.style.display = 'none';
+            resultsContainer.style.display = 'block';
+            textoFeedbackFinal.innerHTML = `Parabéns, <b>${nome}</b>!<br>Completou os cenários de tomada de decisão com uma pontuação de alinhamento de práxis de <b>${pontuacaoTotal} pontos</b>.`;
+
+            // Enviar para o Firebase
+            try {
+                const resultadoRef = ref(db, 'simulador_relacoes/resultados');
+                push(resultadoRef, {
+                    nome: nome,
+                    email: email,
+                    avatar: avatar,
+                    pontuacao: pontuacaoTotal,
+                    data: new Date().toISOString()
+                });
+            } catch (e) {
+                console.error("Erro ao gravar no Firebase:", e);
+            }
+        }
+
+        carregarEtapa();
+    </script>
+</body>
+</html>
