@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="pt" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Técnico-Pedagógico | Brain Hub</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b1020;
+            --card-bg: rgba(30, 41, 59, 0.85);
+            --card-border: rgba(148, 163, 184, 0.15);
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --btn-primary: #6366f1;
+            --btn-hover: #818cf8;
+            --success: #4ade80;
+            --danger: #f87171;
+            --input-bg: rgba(15, 23, 42, 0.7);
+            --radius-lg: 20px;
+            --radius-md: 12px;
+        }
+        [data-theme="light"] {
+            --bg-color: #eef2ff;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-border: rgba(15, 23, 42, 0.08);
+            --text-color: #0f172a;
+            --text-muted: #475569;
+            --input-bg: rgba(255, 255, 255, 0.95);
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            padding: 30px;
+            width: 100%;
+            max-width: 650px;
+            box-shadow: 0 20px 60px -20px rgba(0,0,0,0.5);
+        }
+        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .back-link { color: var(--btn-primary); text-decoration: none; font-weight: 600; font-size: 13.5px; }
+        .theme-btn { background: var(--input-bg); border: 1px solid var(--card-border); color: var(--text-color); padding: 6px 12px; border-radius: 999px; cursor: pointer; font-size: 13px; }
+        
+        h1 { font-size: 20px; margin: 0 0 6px 0; }
+        p.subtitle { font-size: 13px; color: var(--text-muted); margin: 0 0 20px 0; }
+
+        .profile-box {
+            background: var(--input-bg); border: 1px solid var(--card-border);
+            border-radius: var(--radius-md); padding: 14px; margin-bottom: 20px;
+        }
+        .profile-box label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 6px; color: var(--text-muted); }
+        .profile-inputs { display: flex; gap: 8px; }
+        input, select {
+            width: 100%; padding: 9px 12px; border: 1px solid var(--card-border);
+            border-radius: var(--radius-md); font-size: 13px; font-family: inherit;
+            background: var(--input-bg); color: var(--text-color); outline: none;
+        }
+        .btn-main {
+            background: linear-gradient(135deg, var(--btn-primary), #8b5cf6); color: #fff;
+            border: none; padding: 10px 16px; border-radius: var(--radius-md); font-weight: 700;
+            cursor: pointer; width: 100%; font-size: 14px; margin-top: 10px;
+        }
+        .btn-main:hover { opacity: 0.9; }
+
+        .question-box {
+            background: rgba(15, 23, 42, 0.4); border: 1px solid var(--card-border);
+            padding: 18px; border-radius: var(--radius-md); margin-bottom: 16px;
+            font-size: 15px; font-weight: 600; line-height: 1.4;
+        }
+        .options-list { display: flex; flex-direction: column; gap: 10px; }
+        .option-btn {
+            background: var(--input-bg); border: 1px solid var(--card-border);
+            color: var(--text-color); padding: 14px 16px; border-radius: var(--radius-md);
+            text-align: left; font-size: 13.5px; font-family: inherit; cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .option-btn:hover:not(:disabled) { border-color: var(--btn-primary); background: rgba(99, 102, 241, 0.12); }
+        .option-btn.correct { background: rgba(74, 222, 128, 0.2); border-color: var(--success); color: var(--success); }
+        .option-btn.incorrect { background: rgba(248, 113, 113, 0.2); border-color: var(--danger); color: var(--danger); }
+
+        .status-bar {
+            margin-top: 20px; display: flex; justify-content: space-between;
+            font-size: 12.5px; color: var(--text-muted); border-top: 1px solid var(--card-border); padding-top: 12px;
+        }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header-top">
+            <a href="#" class="back-link" onclick="history.back()">← Voltar</a>
+            <button class="theme-btn" id="theme-toggle">🌙 Tema</button>
+        </div>
+
+        <h1>📝 Quiz Técnico-Pedagógico</h1>
+        <p class="subtitle">Avaliação formativa baseada em competências e práxis educativa.</p>
+
+        <!-- Ecrã de Identificação -->
+        <div id="setup-screen" class="profile-box">
+            <label for="input-nome">Identificação do Participante</label>
+            <div class="profile-inputs" style="margin-bottom: 12px;">
+                <select id="select-avatar" style="width: 70px; text-align: center;">
+                    <option value="👨‍🏫">👨‍🏫</option><option value="👩‍🏫">👩‍🏫</option><option value="💡">💡</option><option value="🚀">🚀</option>
+                </select>
+                <input type="text" id="input-nome" placeholder="Digite o seu nome completo...">
+            </div>
+            <button class="btn-main" id="btn-iniciar">Iniciar Quiz</button>
+        </div>
+
+        <!-- Ecrã de Perguntas -->
+        <div id="quiz-screen" class="hidden">
+            <div class="question-box" id="question-text">A carregar pergunta...</div>
+            <div class="options-list" id="options-list"></div>
+            <div class="status-bar">
+                <span id="question-counter">Pergunta 1 de 4</span>
+                <span id="score-counter">Pontuação: 0</span>
+            </div>
+        </div>
+
+        <!-- Ecrã de Resultado -->
+        <div id="result-screen" class="hidden" style="text-align: center; padding: 20px 0;">
+            <h2 style="font-size: 24px; margin-bottom: 10px;">🏆 Quiz Concluído!</h2>
+            <p id="final-message" style="font-size: 15px; color: var(--text-muted); margin-bottom: 20px;"></p>
+            <button class="btn-main" onclick="location.reload()">Refazer Quiz</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { db } from "./firebase-config.js";
+        import { ref, set, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        // Gestão de Tema
+        const themeBtn = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('brain_flow_theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        themeBtn.textContent = savedTheme === 'dark' ? '☀️ Claro' : '🌙 Escuro';
+
+        themeBtn.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('brain_flow_theme', next);
+            themeBtn.textContent = next === 'dark' ? '☀️ Claro' : '🌙 Escuro';
+        });
+
+        // Banco de Questões Baseado nas Teorias e Práxis do Projeto
+        const questoes = [
+            {
+                pergunta: "Segundo Philippe Perrenoud, qual das seguintes competências está diretamente associada à gestão da progressão das aprendizagens dos alunos?",
+                opcoes: [
+                    "A) Conceber e administrar situações de problema adaptadas aos níveis e às possibilidades dos alunos.",
+                    "B) Focar o ensino exclusivamente na transmissão mecânica de conteúdos teóricos em aulas expositivas.",
+                    "C) Eliminar qualquer forma de avaliação formativa no percurso escolar técnico.",
+                    "D) Centralizar a autoridade pedagógica estritamente nas diretrizes burocráticas centrais."
+                ],
+                correta: 0
+            },
+            {
+                pergunta: "De acordo com a Pedagogia da Práxis fundamentada por Paulo Freire, o ato educativo exige fundamentalmente:",
+                opcoes: [
+                    "A) A neutralidade absoluta do educador perante a realidade social.",
+                    "B) A relação dialógica, onde a reflexão e a ação caminham juntas na transformação da realidade.",
+                    "C) A memorização de cartilhas descontextualizadas do quotidiano profissional.",
+                    "D) A submissão passiva do educando ao saber bancário."
+                ],
+                correta: 1
+            },
+            {
+                pergunta: "Nos eixos operacionais do nosso ecossistema pedagógico, qual eixo antecede imediatamente a fase de execução prática de um projeto?",
+                opcoes: [
+                    "A) Criticar",
+                    "B) Sistematizar",
+                    "C) Planejar",
+                    "D) Agir isoladamente"
+                ],
+                correta: 2
+            },
+            {
+                pergunta: "No contexto da gestão democrática e análise institucional, a Teoria das Representações Sociais (Serge Moscovici) ajuda a compreender:",
+                opcoes: [
+                    "A) A forma como os grupos sociais constroem e transformam significados sobre práticas e inovações pedagógicas.",
+                    "B) Os cálculos exatos de rendimento financeiro das unidades escolares.",
+                    "C) A automação de servidores em bases de dados MySQL.",
+                    "D) As regras rígidas de tráfego de redes de computadores."
+                ],
+                correta: 0
+            }
+        ];
+
+        let questaoAtual = 0;
+        let pontuacao = 0;
+        let dadosParticipante = { nome: '', avatar: '' };
+
+        const setupScreen = document.getElementById('setup-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultScreen = document.getElementById('result-screen');
+        const inputNome = document.getElementById('input-nome');
+        const selectAvatar = document.getElementById('select-avatar');
+        const btnIniciar = document.getElementById('btn-iniciar');
+
+        btnIniciar.addEventListener('click', () => {
+            const nome = inputNome.value.trim();
+            if (!nome) {
+                alert('Por favor, digite o seu nome para iniciar o quiz.');
+                inputNome.focus();
+                return;
+            }
+            dadosParticipante.nome = nome;
+            dadosParticipante.avatar = selectAvatar.value;
+
+            setupScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            carregarQuestao();
+        });
+
+        function carregarQuestao() {
+            if (questaoAtual >= questoes.length) {
+                finalizarQuiz();
+                return;
+            }
+
+            const q = questoes[questaoAtual];
+            document.getElementById('question-text').textContent = `Q${questaoAtual + 1}: ${q.pergunta}`;
+            document.getElementById('question-counter').textContent = `Pergunta ${questaoAtual + 1} de ${questoes.length}`;
+            document.getElementById('score-counter').textContent = `Pontuação: ${pontuacao}`;
+
+            const listaOpcoes = document.getElementById('options-list');
+            listaOpcoes.innerHTML = '';
+
+            q.opcoes.forEach((opcao, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = opcao;
+                btn.onclick = () => verificarResposta(index, q.correta);
+                listaOpcoes.appendChild(btn);
+            });
+        }
+
+        function verificarResposta(selecionada, correta) {
+            const botoes = document.querySelectorAll('.option-btn');
+            botoes.forEach((btn, idx) => {
+                btn.disabled = true;
+                if (idx === correta) btn.classList.add('correct');
+                else if (idx === selecionada) btn.classList.add('incorrect');
+            });
+
+            if (selecionada === correta) {
+                pontuacao += 25;
+            }
+
+            setTimeout(() => {
+                questaoAtual++;
+                carregarQuestao();
+            }, 1500);
+        }
+
+        function finalizarQuiz() {
+            quizScreen.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+
+            document.getElementById('final-message').innerHTML = `
+                Parabéns, <strong>${dadosParticipante.avatar} ${dadosParticipante.nome}</strong>!<br>
+                A sua pontuação final foi de <strong>${pontuação} / 100 pontos</strong>.
+            `;
+
+            // Gravar resultado no Realtime Database do Firebase (no nó dedicado ao quiz pedagógico)
+            try {
+                const resultadoRef = ref(db, 'quiz_tecnico_pedagogico/resultados');
+                push(resultadoRef, {
+                    nome: dadosParticipante.nome,
+                    avatar: dadosParticipante.avatar,
+                    pontuacao: pontuacao,
+                    data: new Date().toISOString()
+                });
+            } catch (err) {
+                console.error("Erro ao sincronizar com o Firebase:", err);
+            }
+        }
+    </script>
+</body>
+</html>
