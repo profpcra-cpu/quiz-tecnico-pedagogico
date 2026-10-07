@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-br" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Infantil - Descoberta Mágica</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b1020;
+            --card-bg: rgba(30, 41, 59, 0.85);
+            --text-color: #f8fafc;
+            --primary: #6366f1;
+            --accent: #ec4899;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: radial-gradient(circle, #1e1b4b 0%, #0b1020 100%);
+            color: var(--text-color);
+            margin: 0; padding: 20px;
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh;
+        }
+        .quiz-container {
+            background: var(--card-bg);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 24px;
+            padding: 24px;
+            width: 100%; max-width: 500px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+        .progress-bar {
+            font-size: 14px; font-weight: 800; color: var(--accent);
+            margin-bottom: 12px; text-transform: uppercase;
+        }
+        .question-box {
+            font-size: 18px; font-weight: 700; margin-bottom: 24px;
+            min-height: 54px;
+        }
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+        .card-opcao {
+            background: rgba(255,255,255,0.05);
+            border: 2px solid rgba(255,255,255,0.15);
+            border-radius: 16px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex; flex-direction: column; align-items: center; gap: 8px;
+        }
+        .card-opcao:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.15);
+        }
+        .card-opcao img {
+            width: 70px; height: 70px; object-fit: contain;
+        }
+        .card-opcao span {
+            font-size: 14px; font-weight: 600;
+        }
+        .correto { background: rgba(34, 197, 94, 0.3) !important; border-color: #22c55e !important; }
+        .incorreto { background: rgba(239, 68, 68, 0.3) !important; border-color: #ef4444 !important; }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container">
+        <div class="progress-bar" id="bloco-indicador">Bloco 1 de 6</div>
+        <div class="question-box" id="pergunta-texto">Carregando pergunta...</div>
+        
+        <div class="cards-grid" id="grid-cards">
+            <!-- Os cards serão injetados via JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        const blocosQuiz = [
+            {
+                bloco: 1,
+                pergunta: "Qual destes animais começa com a letra M?",
+                opcoes: [
+                    { texto: "Macaco", img: "https://img.icons8.com/color/96/monkey.png", correto: true },
+                    { texto: "Pato", img: "https://img.icons8.com/color/96/duck.png", correto: false },
+                    { texto: "Sapo", img: "https://img.icons8.com/color/96/frog.png", correto: false },
+                    { texto: "Leão", img: "https://img.icons8.com/color/96/lion.png", correto: false }
+                ]
+            },
+            {
+                bloco: 2,
+                pergunta: "Quantas estrelas estão brilhando? ⭐⭐⭐",
+                opcoes: [
+                    { texto: "Duas", img: "https://img.icons8.com/color/96/2-circle.png", correto: false },
+                    { texto: "Três", img: "https://img.icons8.com/color/96/3-circle.png", correto: true },
+                    { texto: "Quatro", img: "https://img.icons8.com/color/96/4-circle.png", correto: false },
+                    { texto: "Cinco", img: "https://img.icons8.com/color/96/5-circle.png", correto: false }
+                ]
+            }
+            // Adicionar blocos 3, 4, 5 e 6 aqui...
+        ];
+
+        let indiceAtual = 0;
+
+        function carregarPergunta() {
+            const atual = blocosQuiz[indiceAtual];
+            document.getElementById('bloco-indicador').textContent = `Bloco ${atual.bloco} de ${blocosQuiz.length}`;
+            document.getElementById('pergunta-texto').textContent = atual.pergunta;
+            
+            const grid = document.getElementById('grid-cards');
+            grid.innerHTML = '';
+
+            atual.opcoes.forEach(opcao => {
+                const card = document.createElement('div');
+                card.classList.add('card-opcao');
+                card.innerHTML = `
+                    <img src="${opcao.img}" alt="${opcao.texto}">
+                    <span>${opcao.texto}</span>
+                `;
+                card.addEventListener('click', () => selecionarResposta(opcao, card));
+                grid.appendChild(card);
+            });
+        }
+
+        function selecionarResposta(opcao, cardElement) {
+            const cards = document.querySelectorAll('.card-opcao');
+            cards.forEach(c => c.style.pointerEvents = 'none'); // Bloqueia novos cliques
+
+            if (opcao.correto) {
+                cardElement.classList.add('correto');
+                setTimeout(() => {
+                    indiceAtual++;
+                    if (indiceAtual < blocosQuiz.length) {
+                        carregarPergunta();
+                    } else {
+                        document.querySelector('.quiz-container').innerHTML = `
+                            <h2>🎉 Parabéns!</h2>
+                            <p>Você completou todos os blocos com sucesso e ganhou a medalha de Explorador do Saber!</p>
+                        `;
+                    }
+                }, 1200);
+            } else {
+                cardElement.classList.add('incorreto');
+                setTimeout(() => {
+                    cards.forEach(c => c.style.pointerEvents = 'auto');
+                    cardElement.classList.remove('incorreto');
+                }, 1000);
+            }
+        }
+
+        carregarPergunta();
+    </script>
+</body>
+</html>
