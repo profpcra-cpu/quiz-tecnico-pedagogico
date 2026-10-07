@@ -141,6 +141,14 @@
                 </div>
                 <div class="module-action">Aceder ➔</div>
             </a>
+
+            <a href="quiz-series-iniciais.html" class="module-card locked" id="mod-series-iniciais">
+                <div class="module-info">
+                    <h3>🌟 Quiz - Séries Iniciais</h3>
+                    <p>Desafios lúdicos com cards coloridos e imagens para as crianças.</p>
+                </div>
+                <div class="module-action">Aceder ➔</div>
+            </a>
         </div>
     </div>
 
@@ -168,6 +176,7 @@
         const welcomeHeader = document.getElementById('welcome-header');
         const modQuiz = document.getElementById('mod-quiz');
         const modSimulador = document.getElementById('mod-simulador');
+        const modSeriesIniciais = document.getElementById('mod-series-iniciais');
 
         function verificarSessao() {
             const nomeSalvo = localStorage.getItem('brain_hub_nome');
@@ -179,6 +188,7 @@
                 welcomeHeader.innerHTML = `<div class="user-badge"><span>${avatarSalvo || '👨‍🏫'}</span> <b>${nomeSalvo}</b> <a href="#" id="trocar-nome" style="color:var(--btn-primary); font-size:12px; text-decoration:none; margin-left:6px;">[alterar]</a></div>`;
                 modQuiz.classList.remove('locked');
                 modSimulador.classList.remove('locked');
+                modSeriesIniciais.classList.remove('locked');
             }
         }
 
