@@ -139,7 +139,7 @@
             background: rgba(255,255,255,0.04);
             border: 2px solid rgba(255,255,255,0.1);
             border-radius: 18px;
-            padding: 12px;
+            padding: 16px 12px;
             cursor: pointer;
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex; flex-direction: column; align-items: center; gap: 8px;
@@ -165,16 +165,17 @@
             cursor: not-allowed;
             pointer-events: none;
         }
-        .card-opcao img {
-            width: 100%; height: 90px;
-            object-fit: cover;
-            border-radius: 12px;
+        .card-icone {
+            font-size: 45px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             transition: transform 0.3s ease;
-            background: rgba(0,0,0,0.2);
         }
-        .card-opcao:hover:not(.disabled) img { transform: scale(1.05); }
+        .card-opcao:hover:not(.disabled) .card-icone { transform: scale(1.15); }
         .card-opcao span {
-            font-size: 13.5px; font-weight: 600;
+            font-size: 14px; font-weight: 600;
             line-height: 1.2;
         }
 
@@ -257,7 +258,6 @@
 
         @media (max-width: 400px) {
             .cards-grid { grid-template-columns: 1fr; }
-            .card-opcao img { height: 120px; }
             .question-box { font-size: 17px; }
         }
     </style>
@@ -293,100 +293,100 @@
                 bloco: 1,
                 pergunta: "Qual destes animais é o Rei da Selva?",
                 opcoes: [
-                    { texto: "Leão",     img: "https://images.unsplash.com/photo-1534188752589-f2f2e693953e?w=400&q=80", correto: true },
-                    { texto: "Elefante", img: "https://images.unsplash.com/photo-1557050543-4d5f4e07ef46?w=400&q=80", correto: false },
-                    { texto: "Girafa",   img: "https://images.unsplash.com/photo-1547721064-da6cfb341d50?w=400&q=80", correto: false },
-                    { texto: "Zebra",    img: "https://images.unsplash.com/photo-1526095179574-86e545346ae6?w=400&q=80", correto: false }
+                    { texto: "Leão",     icone: "🦁", correto: true },
+                    { texto: "Elefante", icone: "🐘", correto: false },
+                    { texto: "Girafa",   icone: "🦒", correto: false },
+                    { texto: "Zebra",    icone: "🦓", correto: false }
                 ]
             },
             {
                 bloco: 2,
                 pergunta: "Qual é a cor do céu num dia de sol?",
                 opcoes: [
-                    { texto: "Azul",     img: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=400&q=80", correto: true },
-                    { texto: "Verde",    img: "https://images.unsplash.com/photo-1511497584788-876761142212?w=400&q=80", correto: false },
-                    { texto: "Vermelho", img: "https://images.unsplash.com/photo-1509114397022-ed747cca3f65?w=400&q=80", correto: false },
-                    { texto: "Roxo",     img: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=400&q=80", correto: false }
+                    { texto: "Azul",     icone: "🌤️", correto: true },
+                    { texto: "Verde",    icone: "🌲", correto: false },
+                    { texto: "Vermelho", icone: "🍎", correto: false },
+                    { texto: "Roxo",     icone: "🍇", correto: false }
                 ]
             },
             {
                 bloco: 3,
                 pergunta: "Qual destas frutas é vermelha e crocante?",
                 opcoes: [
-                    { texto: "Maçã",    img: "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=400&q=80", correto: true },
-                    { texto: "Banana",  img: "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=400&q=80", correto: false },
-                    { texto: "Laranja", img: "https://images.unsplash.com/photo-1547514701-42782101795e?w=400&q=80", correto: false },
-                    { texto: "Uva",     img: "https://images.unsplash.com/photo-1537640538966-79f369143f8f?w=400&q=80", correto: false }
+                    { texto: "Maçã",    icone: "🍎", correto: true },
+                    { texto: "Banana",  icone: "🍌", correto: false },
+                    { texto: "Laranja", icone: "🍊", correto: false },
+                    { texto: "Uva",     icone: "🍇", correto: false }
                 ]
             },
             {
                 bloco: 4,
                 pergunta: "Quantos planetas existem no Sistema Solar?",
                 opcoes: [
-                    { texto: "8 Planetas",  img: "https://images.unsplash.com/photo-1614730341194-75c60740a2d8?w=400&q=80", correto: true },
-                    { texto: "5 Planetas",  img: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&q=80", correto: false },
-                    { texto: "12 Planetas", img: "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=400&q=80", correto: false },
-                    { texto: "3 Planetas",  img: "https://images.unsplash.com/photo-1502134249126-9f3755a50d78?w=400&q=80", correto: false }
+                    { texto: "8 Planetas",  icone: "🪐", correto: true },
+                    { texto: "5 Planetas",  icone: "🌍", correto: false },
+                    { texto: "12 Planetas", icone: "✨", correto: false },
+                    { texto: "3 Planetas",  icone: "⭐", correto: false }
                 ]
             },
             {
                 bloco: 5,
                 pergunta: "Qual destes é um meio de transporte?",
                 opcoes: [
-                    { texto: "Carro",   img: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=400&q=80", correto: true },
-                    { texto: "Árvore",  img: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&q=80", correto: false },
-                    { texto: "Cadeira", img: "https://images.unsplash.com/photo-1503602642458-232111445657?w=400&q=80", correto: false },
-                    { texto: "Nuvem",   img: "https://images.unsplash.com/photo-1504608524841-42fe6f032b4b?w=400&q=80", correto: false }
+                    { texto: "Carro",   icone: "🚗", correto: true },
+                    { texto: "Árvore",  icone: "🌳", correto: false },
+                    { texto: "Cadeira", icone: "🪑", correto: false },
+                    { texto: "Nuvem",   icone: "☁️", correto: false }
                 ]
             },
             {
                 bloco: 6,
                 pergunta: "Qual é o maior animal do mundo?",
                 opcoes: [
-                    { texto: "Baleia Azul", img: "https://images.unsplash.com/photo-1568430462989-44163eb1752f?w=400&q=80", correto: true },
-                    { texto: "Elefante",    img: "https://images.unsplash.com/photo-1557050543-4d5f4e07ef46?w=400&q=80", correto: false },
-                    { texto: "Tubarão",     img: "https://images.unsplash.com/photo-1560275619-4662e36fa65c?w=400&q=80", correto: false },
-                    { texto: "Girafa",      img: "https://images.unsplash.com/photo-1547721064-da6cfb341d50?w=400&q=80", correto: false }
+                    { texto: "Baleia Azul", icone: "🐋", correto: true },
+                    { texto: "Elefante",    icone: "🐘", correto: false },
+                    { texto: "Tubarão",     icone: "🦈", correto: false },
+                    { texto: "Girafa",      icone: "🦒", correto: false }
                 ]
             },
             {
                 bloco: 7,
                 pergunta: "Em que estação do ano costuma nevar?",
                 opcoes: [
-                    { texto: "Inverno",   img: "https://images.unsplash.com/photo-1483664852095-d6cc6870702d?w=400&q=80", correto: true },
-                    { texto: "Verão",     img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&q=80", correto: false },
-                    { texto: "Outono",    img: "https://images.unsplash.com/photo-1507371341162-763b5e419408?w=400&q=80", correto: false },
-                    { texto: "Primavera", img: "https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=400&q=80", correto: false }
+                    { texto: "Inverno",   icone: "❄️", correto: true },
+                    { texto: "Verão",     icone: "☀️", correto: false },
+                    { texto: "Outono",    icone: "🍂", correto: false },
+                    { texto: "Primavera", icone: "🌷", correto: false }
                 ]
             },
             {
                 bloco: 8,
                 pergunta: "Qual destes é um inseto?",
                 opcoes: [
-                    { texto: "Borboleta", img: "https://images.unsplash.com/photo-1444464666168-49d633b86797?w=400&q=80", correto: true },
-                    { texto: "Pássaro",   img: "https://images.unsplash.com/photo-1552728089-57bdde30beb3?w=400&q=80", correto: false },
-                    { texto: "Peixe",     img: "https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?w=400&q=80", correto: false },
-                    { texto: "Cobra",     img: "https://images.unsplash.com/photo-1531386151447-fd76ad50012f?w=400&q=80", correto: false }
+                    { texto: "Borboleta", icone: "🦋", correto: true },
+                    { texto: "Pássaro",   icone: "🐦", correto: false },
+                    { texto: "Peixe",     icone: "🐟", correto: false },
+                    { texto: "Cobra",     icone: "🐍", correto: false }
                 ]
             },
             {
                 bloco: 9,
                 pergunta: "Que forma geométrica tem 3 lados?",
                 opcoes: [
-                    { texto: "Triângulo", img: "https://images.unsplash.com/photo-1580910051074-3eb694886505?w=400&q=80", correto: true },
-                    { texto: "Quadrado",  img: "https://images.unsplash.com/photo-1591290619618-904f6dd935e3?w=400&q=80", correto: false },
-                    { texto: "Círculo",   img: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&q=80", correto: false },
-                    { texto: "Retângulo", img: "https://images.unsplash.com/photo-1594322436404-5a0526db4d13?w=400&q=80", correto: false }
+                    { texto: "Triângulo", icone: "🔺", correto: true },
+                    { texto: "Quadrado",  icone: "⬛", correto: false },
+                    { texto: "Círculo",   icone: "⭕", correto: false },
+                    { texto: "Retângulo", icone: "🟩", correto: false }
                 ]
             },
             {
                 bloco: 10,
                 pergunta: "Qual é o satélite natural da Terra?",
                 opcoes: [
-                    { texto: "Lua",     img: "https://images.unsplash.com/photo-1522030299830-16b8d3d049fe?w=400&q=80", correto: true },
-                    { texto: "Sol",     img: "https://images.unsplash.com/photo-1502134249126-9f3755a50d78?w=400&q=80", correto: false },
-                    { texto: "Marte",   img: "https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?w=400&q=80", correto: false },
-                    { texto: "Júpiter", img: "https://images.unsplash.com/photo-1614730341194-75c60740a2d8?w=400&q=80", correto: false }
+                    { texto: "Lua",     icone: "🌙", correto: true },
+                    { texto: "Sol",     icone: "☀️", correto: false },
+                    { texto: "Marte",   icone: "🔴", correto: false },
+                    { texto: "Júpiter", icone: "🪐", correto: false }
                 ]
             }
         ];
@@ -454,20 +454,6 @@
             return copia;
         }
 
-        function criarImagemComFallback(src, alt) {
-            const img = document.createElement('img');
-            img.src = src;
-            img.alt = alt;
-            img.loading = 'lazy';
-            img.onerror = () => {
-                img.replaceWith(Object.assign(document.createElement('div'), {
-                    textContent: '🖼️',
-                    style: 'width:100%;height:90px;display:flex;align-items:center;justify-content:center;font-size:36px;opacity:0.4;border-radius:12px;background:rgba(0,0,0,0.2);'
-                }));
-            };
-            return img;
-        }
-
         function iniciarTimer() {
             clearInterval(timerInterval);
             tempoRestante = 15;
@@ -528,7 +514,10 @@
                 card.className = 'card-opcao';
                 card.setAttribute('aria-label', `Resposta: ${opcao.texto}`);
 
-                card.appendChild(criarImagemComFallback(opcao.img, opcao.texto));
+                const iconeDiv = document.createElement('div');
+                iconeDiv.className = 'card-icone';
+                iconeDiv.textContent = opcao.icone;
+                card.appendChild(iconeDiv);
 
                 const span = document.createElement('span');
                 span.textContent = opcao.texto;
