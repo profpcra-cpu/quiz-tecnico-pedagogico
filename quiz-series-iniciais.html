@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz Infantil - Descoberta Mágica</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Biblioteca de Confetes para a tela final -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root {
             --bg-color: #0b1020;
@@ -54,6 +56,20 @@
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
+        .timer-bar {
+            width: 100%; height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 99px;
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+        .timer-fill {
+            height: 100%; width: 100%;
+            background: var(--gold);
+            border-radius: 99px;
+            transition: width 0.1s linear;
+        }
+
         .progress-container {
             width: 100%; height: 8px;
             background: rgba(255,255,255,0.1);
@@ -69,6 +85,23 @@
             box-shadow: 0 0 10px var(--primary-glow);
         }
 
+        .top-bar-info {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 12px; font-size: 13px; font-weight: 800;
+        }
+        .best-display {
+            background: rgba(99, 102, 241, 0.15);
+            color: #a5b4fc;
+            padding: 4px 10px; border-radius: 99px;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+        .score-display {
+            background: rgba(251, 191, 36, 0.15);
+            color: var(--gold);
+            padding: 4px 10px; border-radius: 99px;
+            border: 1px solid rgba(251, 191, 36, 0.3);
+        }
+
         .progress-bar-text {
             font-size: 13px; font-weight: 800;
             color: var(--accent);
@@ -76,30 +109,26 @@
             text-transform: uppercase;
             letter-spacing: 1px;
         }
-        .score-display {
-            position: absolute; top: 20px; right: 24px;
-            font-size: 13px; font-weight: 800;
-            background: rgba(251, 191, 36, 0.15);
-            color: var(--gold);
-            padding: 4px 10px; border-radius: 99px;
-            border: 1px solid rgba(251, 191, 36, 0.3);
-        }
-        .best-display {
-            position: absolute; top: 20px; left: 24px;
-            font-size: 11px; font-weight: 700;
-            background: rgba(99, 102, 241, 0.15);
-            color: #a5b4fc;
-            padding: 4px 10px; border-radius: 99px;
-            border: 1px solid rgba(99, 102, 241, 0.3);
-        }
 
+        .question-header {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            margin: 20px 0 16px;
+        }
         .question-box {
             font-size: 19px; font-weight: 700;
-            margin: 32px 0 24px;
-            min-height: 60px;
             line-height: 1.4;
-            display: flex; align-items: center; justify-content: center;
+            flex: 1;
         }
+        .btn-falar {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 50%; width: 40px; height: 40px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 18px; color: #fff;
+            transition: background 0.2s;
+            flex-shrink: 0;
+        }
+        .btn-falar:hover { background: rgba(99, 102, 241, 0.3); }
 
         .cards-grid {
             display: grid;
@@ -237,13 +266,22 @@
 <body>
 
     <div class="quiz-container" id="quiz-container">
-        <div class="best-display" id="best-display">🏅 Melhor: 0</div>
-        <div class="score-display" id="score-display">⭐ 0 pts</div>
+        <div class="top-bar-info">
+            <div class="best-display" id="best-display">🏅 Melhor: 0</div>
+            <div class="score-display" id="score-display">⭐ 0 pts</div>
+        </div>
+        <div class="timer-bar">
+            <div class="timer-fill" id="timer-fill"></div>
+        </div>
         <div class="progress-container">
             <div class="progress-fill" id="progress-fill"></div>
         </div>
         <div class="progress-bar-text" id="bloco-indicador">Bloco 1 de 10</div>
-        <div class="question-box" id="pergunta-texto">Carregando pergunta...</div>
+        
+        <div class="question-header">
+            <div class="question-box" id="pergunta-texto">Carregando pergunta...</div>
+            <button class="btn-falar" id="btn-falar" title="Ouvir pergunta" aria-label="Ouvir pergunta">🔊</button>
+        </div>
 
         <div class="cards-grid" id="grid-cards" role="group" aria-label="Opções de resposta"></div>
     </div>
@@ -251,9 +289,6 @@
     <script>
         'use strict';
 
-        // ==========================================================
-        // BANCO DE QUESTÕES - CORRIGIDO (imagens únicas por opção)
-        // ==========================================================
         const blocosQuiz = [
             {
                 bloco: 1,
@@ -357,27 +392,19 @@
             }
         ];
 
-        // ==========================================================
-        // ESTADO DO JOGO
-        // ==========================================================
         let indiceAtual = 0;
         let pontuacao = 0;
         let melhorPontuacao = parseInt(localStorage.getItem('quiz_infantil_best') || '0', 10);
-        let bloqueado = false; // evita cliques duplos durante animações
+        let bloqueado = false;
+        let tempoRestante = 15;
+        let timerInterval = null;
 
-        // ==========================================================
-        // ÁUDIO — Singleton AudioContext
-        // ==========================================================
+        // Áudio Web Audio API
         let audioCtx = null;
         function getAudioCtx() {
             if (!audioCtx) {
-                try {
-                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                } catch (e) {
-                    console.warn('AudioContext não suportado:', e);
-                }
+                try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {}
             }
-            // Retoma se estiver suspenso (política de autoplay)
             if (audioCtx && audioCtx.state === 'suspended') {
                 audioCtx.resume().catch(() => {});
             }
@@ -387,12 +414,10 @@
         function tocarSom(tipo) {
             const ctx = getAudioCtx();
             if (!ctx) return;
-
-            // Frequências em sequência para melodia
             let notas = [];
-            if (tipo === 'acerto')  notas = [523.25, 659.25, 783.99];        // C5 E5 G5
-            else if (tipo === 'erro')   notas = [311.13, 233.08];            // Eb4 Bb3
-            else if (tipo === 'vitoria') notas = [523.25, 659.25, 783.99, 1046.50]; // C5 E5 G5 C6
+            if (tipo === 'acerto')  notas = [523.25, 659.25, 783.99];
+            else if (tipo === 'erro')   notas = [311.13, 233.08];
+            else if (tipo === 'vitoria') notas = [523.25, 659.25, 783.99, 1046.50];
 
             const inicio = ctx.currentTime;
             notas.forEach((freq, i) => {
@@ -400,14 +425,11 @@
                 const gain = ctx.createGain();
                 osc.type = 'triangle';
                 osc.frequency.value = freq;
-
                 const t0 = inicio + i * 0.12;
                 const t1 = t0 + 0.18;
-
                 gain.gain.setValueAtTime(0, t0);
                 gain.gain.linearRampToValueAtTime(0.18, t0 + 0.02);
                 gain.gain.exponentialRampToValueAtTime(0.001, t1);
-
                 osc.connect(gain);
                 gain.connect(ctx.destination);
                 osc.start(t0);
@@ -415,9 +437,17 @@
             });
         }
 
-        // ==========================================================
-        // HELPERS
-        // ==========================================================
+        // Leitura de texto (Text-to-Speech)
+        function falarTexto(texto) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(texto);
+                utterance.lang = 'pt-BR';
+                utterance.rate = 0.9; // Um pouco mais devagar para crianças
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
         function embaralhar(array) {
             const copia = array.slice();
             for (let i = copia.length - 1; i > 0; i--) {
@@ -433,7 +463,6 @@
             img.alt = alt;
             img.loading = 'lazy';
             img.onerror = () => {
-                // Fallback: substitui por emoji de imagem quebrada
                 img.replaceWith(Object.assign(document.createElement('div'), {
                     textContent: '🖼️',
                     style: 'width:100%;height:90px;display:flex;align-items:center;justify-content:center;font-size:36px;opacity:0.4;border-radius:12px;background:rgba(0,0,0,0.2);'
@@ -442,11 +471,50 @@
             return img;
         }
 
-        // ==========================================================
-        // CARREGAR PERGUNTA
-        // ==========================================================
+        function iniciarTimer() {
+            clearInterval(timerInterval);
+            tempoRestante = 15;
+            const timerFill = document.getElementById('timer-fill');
+            
+            timerInterval = setInterval(() => {
+                tempoRestante -= 0.1;
+                const porcentagem = (tempoRestante / 15) * 100;
+                if (timerFill) timerFill.style.width = `${Math.max(porcentagem, 0)}%`;
+
+                if (tempoRestante <= 0) {
+                    clearInterval(timerInterval);
+                    tempoEsgotado();
+                }
+            }, 100);
+        }
+
+        function tempoEsgotado() {
+            if (bloqueado) return;
+            bloqueado = true;
+            tocarSom('erro');
+            const cards = document.querySelectorAll('.card-opcao');
+            cards.forEach(c => c.classList.add('disabled'));
+
+            // Mostra a correta
+            const atual = blocosQuiz[indiceAtual];
+            cards.forEach((card, idx) => {
+                // Se precisar destacar a correta por timeout
+            });
+
+            setTimeout(() => {
+                indiceAtual++;
+                if (indiceAtual < blocosQuiz.length) {
+                    carregarPergunta();
+                } else {
+                    mostrarTelaFinal();
+                }
+            }, 1500);
+        }
+
         function carregarPergunta() {
             bloqueado = false;
+            clearInterval(timerInterval);
+            
             const atual = blocosQuiz[indiceAtual];
             const total = blocosQuiz.length;
 
@@ -455,14 +523,12 @@
             document.getElementById('score-display').textContent = `⭐ ${pontuacao} pts`;
             document.getElementById('best-display').textContent = `🏅 Melhor: ${melhorPontuacao}`;
 
-            // Progresso: mostra quantas já foram respondidas
             const progresso = (indiceAtual / total) * 100;
             document.getElementById('progress-fill').style.width = `${progresso}%`;
 
             const grid = document.getElementById('grid-cards');
             grid.innerHTML = '';
 
-            // Embaralha opções para evitar memorização por posição
             const opcoesEmbaralhadas = embaralhar(atual.opcoes);
 
             opcoesEmbaralhadas.forEach(opcao => {
@@ -480,14 +546,19 @@
                 card.addEventListener('click', () => selecionarResposta(opcao, card));
                 grid.appendChild(card);
             });
+
+            // Opcional: fala automaticamente ao carregar (descomente se desejar)
+            // falarTexto(atual.pergunta);
+
+            document.getElementById('btn-falar').onclick = () => falarTexto(atual.pergunta);
+
+            iniciarTimer();
         }
 
-        // ==========================================================
-        // SELECIONAR RESPOSTA
-        // ==========================================================
         function selecionarResposta(opcao, cardElement) {
             if (bloqueado) return;
             bloqueado = true;
+            clearInterval(timerInterval);
 
             const cards = document.querySelectorAll('.card-opcao');
             cards.forEach(c => c.classList.add('disabled'));
@@ -495,17 +566,18 @@
             if (opcao.correto) {
                 cardElement.classList.add('correto');
 
-                // Badge de confirmação
                 const badge = document.createElement('span');
                 badge.className = 'feedback-badge';
                 badge.textContent = '✓';
                 cardElement.appendChild(badge);
 
                 tocarSom('acerto');
-                pontuacao += 10;
+                
+                // Bônus de velocidade baseado no tempo restante
+                const bonusVelocidade = Math.floor(tempoRestante);
+                pontuacao += 10 + bonusVelocidade;
                 document.getElementById('score-display').textContent = `⭐ ${pontuacao} pts`;
 
-                // Atualiza barra já mostrando progresso desta resposta
                 const total = blocosQuiz.length;
                 const progresso = ((indiceAtual + 1) / total) * 100;
                 document.getElementById('progress-fill').style.width = `${progresso}%`;
@@ -526,19 +598,17 @@
                     cardElement.classList.remove('incorreto');
                     cards.forEach(c => c.classList.remove('disabled'));
                     bloqueado = false;
+                    iniciarTimer();
                 }, 900);
             }
         }
 
-        // ==========================================================
-        // TELA FINAL
-        // ==========================================================
         function mostrarTelaFinal() {
+            clearInterval(timerInterval);
             const total = blocosQuiz.length;
-            const maxPontos = total * 10;
-            const percentual = (pontuacao / maxPontos) * 100;
+            const maxPontos = total * 20; // Estimativa com bônus
+            const percentual = (pontuacao / (total * 10)) * 100;
 
-            // Atualiza recorde
             if (pontuacao > melhorPontuacao) {
                 melhorPontuacao = pontuacao;
                 localStorage.setItem('quiz_infantil_best', String(melhorPontuacao));
@@ -561,12 +631,17 @@
 
             tocarSom('vitoria');
 
+            // Dispara confetes festivos
+            if (typeof confetti === 'function') {
+                confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
+            }
+
             const container = document.getElementById('quiz-container');
             container.innerHTML = `
                 <div class="final-screen">
                     <div class="medalha">${medalha}</div>
                     <h2>${titulo}</h2>
-                    <div class="pontuacao-final">${pontuacao} / ${maxPontos} pontos</div>
+                    <div class="pontuacao-final">${pontuacao} pontos</div>
                     <p>${mensagem}</p>
                     <p style="font-size:13px;color:#94a3b8;">🏅 Melhor pontuação: ${melhorPontuacao} pts</p>
                     <button class="btn-reiniciar" id="btn-reiniciar">🔄 Jogar Novamente</button>
@@ -575,9 +650,6 @@
             document.getElementById('btn-reiniciar').addEventListener('click', reiniciarQuiz);
         }
 
-        // ==========================================================
-        // REINICIAR
-        // ==========================================================
         function reiniciarQuiz() {
             indiceAtual = 0;
             pontuacao = 0;
@@ -585,21 +657,26 @@
 
             const container = document.getElementById('quiz-container');
             container.innerHTML = `
-                <div class="best-display" id="best-display">🏅 Melhor: ${melhorPontuacao}</div>
-                <div class="score-display" id="score-display">⭐ 0 pts</div>
+                <div class="top-bar-info">
+                    <div class="best-display" id="best-display">🏅 Melhor: ${melhorPontuacao}</div>
+                    <div class="score-display" id="score-display">⭐ 0 pts</div>
+                </div>
+                <div class="timer-bar">
+                    <div class="timer-fill" id="timer-fill"></div>
+                </div>
                 <div class="progress-container">
                     <div class="progress-fill" id="progress-fill"></div>
                 </div>
                 <div class="progress-bar-text" id="bloco-indicador">Bloco 1 de ${blocosQuiz.length}</div>
-                <div class="question-box" id="pergunta-texto">Carregando pergunta...</div>
+                <div class="question-header">
+                    <div class="question-box" id="pergunta-texto">Carregando pergunta...</div>
+                    <button class="btn-falar" id="btn-falar" title="Ouvir pergunta" aria-label="Ouvir pergunta">🔊</button>
+                </div>
                 <div class="cards-grid" id="grid-cards" role="group" aria-label="Opções de resposta"></div>
             `;
             carregarPergunta();
         }
 
-        // ==========================================================
-        // INICIALIZAÇÃO
-        // ==========================================================
         carregarPergunta();
     </script>
 </body>
