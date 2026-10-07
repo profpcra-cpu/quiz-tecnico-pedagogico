@@ -4,73 +4,211 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz Infantil - Descoberta Mágica</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-color: #0b1020;
             --card-bg: rgba(30, 41, 59, 0.85);
             --text-color: #f8fafc;
             --primary: #6366f1;
+            --primary-glow: rgba(99, 102, 241, 0.4);
             --accent: #ec4899;
+            --success: #22c55e;
+            --error: #ef4444;
+            --gold: #fbbf24;
         }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background: radial-gradient(circle, #1e1b4b 0%, #0b1020 100%);
+            background: radial-gradient(circle at 20% 0%, #1e1b4b 0%, #0b1020 60%);
             color: var(--text-color);
-            margin: 0; padding: 20px;
-            display: flex; justify-content: center; align-items: center;
             min-height: 100vh;
+            display: flex; justify-content: center; align-items: center;
+            padding: 16px;
+            overflow-x: hidden;
         }
+        /* Efeitos de fundo */
+        body::before, body::after {
+            content: ""; position: fixed; border-radius: 50%;
+            filter: blur(120px); opacity: 0.3; z-index: -1;
+        }
+        body::before { width: 400px; height: 400px; background: #6366f1; top: -100px; left: -100px; }
+        body::after { width: 400px; height: 400px; background: #ec4899; bottom: -100px; right: -100px; }
+
         .quiz-container {
             background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 24px;
+            border-radius: 28px;
             padding: 24px;
-            width: 100%; max-width: 500px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            width: 100%; max-width: 550px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7);
             text-align: center;
+            animation: cardIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
         }
-        .progress-bar {
-            font-size: 14px; font-weight: 800; color: var(--accent);
-            margin-bottom: 12px; text-transform: uppercase;
+
+        @keyframes cardIn {
+            from { opacity: 0; transform: translateY(20px) scale(0.96); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
+
+        /* Barra de Progresso Visual */
+        .progress-container {
+            width: 100%; height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 99px;
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%; width: 0%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            border-radius: 99px;
+            transition: width 0.5s ease;
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        .progress-bar-text {
+            font-size: 13px; font-weight: 800;
+            color: var(--accent);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .score-display {
+            position: absolute; top: 20px; right: 24px;
+            font-size: 13px; font-weight: 800;
+            background: rgba(251, 191, 36, 0.15);
+            color: var(--gold);
+            padding: 4px 10px; border-radius: 99px;
+            border: 1px solid rgba(251, 191, 36, 0.3);
+        }
+
         .question-box {
-            font-size: 18px; font-weight: 700; margin-bottom: 24px;
-            min-height: 54px;
+            font-size: 19px; font-weight: 700;
+            margin-bottom: 24px;
+            min-height: 60px;
+            line-height: 1.4;
+            display: flex; align-items: center; justify-content: center;
         }
+
         .cards-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
+            gap: 14px;
         }
+
         .card-opcao {
-            background: rgba(255,255,255,0.05);
-            border: 2px solid rgba(255,255,255,0.15);
-            border-radius: 16px;
-            padding: 16px;
+            background: rgba(255,255,255,0.04);
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 18px;
+            padding: 12px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex; flex-direction: column; align-items: center; gap: 8px;
+            position: relative;
+            overflow: hidden;
         }
         .card-opcao:hover {
-            transform: translateY(-4px);
+            transform: translateY(-5px) scale(1.02);
             border-color: var(--primary);
             background: rgba(99, 102, 241, 0.15);
+            box-shadow: 0 10px 25px -5px var(--primary-glow);
         }
         .card-opcao img {
-            width: 70px; height: 70px; object-fit: contain;
+            width: 100%; height: 90px;
+            object-fit: cover;
+            border-radius: 12px;
+            transition: transform 0.3s ease;
         }
+        .card-opcao:hover img { transform: scale(1.05); }
         .card-opcao span {
-            font-size: 14px; font-weight: 600;
+            font-size: 13.5px; font-weight: 600;
+            line-height: 1.2;
         }
-        .correto { background: rgba(34, 197, 94, 0.3) !important; border-color: #22c55e !important; }
-        .incorreto { background: rgba(239, 68, 68, 0.3) !important; border-color: #ef4444 !important; }
+
+        /* Estados de Acerto/Erro */
+        .card-opcao.correto {
+            background: rgba(34, 197, 94, 0.25) !important;
+            border-color: var(--success) !important;
+            animation: acertoPulse 0.5s ease;
+        }
+        .card-opcao.incorreto {
+            background: rgba(239, 68, 68, 0.25) !important;
+            border-color: var(--error) !important;
+            animation: erroShake 0.4s ease;
+        }
+        @keyframes acertoPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); box-shadow: 0 0 30px var(--success); }
+            100% { transform: scale(1); }
+        }
+        @keyframes erroShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+
+        /* Tela Final */
+        .final-screen {
+            display: flex; flex-direction: column; align-items: center; gap: 16px;
+            animation: cardIn 0.6s ease;
+        }
+        .medalha {
+            font-size: 80px;
+            animation: flutuar 2s infinite ease-in-out;
+            filter: drop-shadow(0 0 20px var(--gold));
+        }
+        @keyframes flutuar {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        .final-screen h2 {
+            font-size: 26px; font-weight: 800;
+            background: linear-gradient(135deg, var(--gold), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .final-screen p {
+            font-size: 15px; color: #cbd5e1; line-height: 1.5;
+        }
+        .pontuacao-final {
+            font-size: 32px; font-weight: 800;
+            color: var(--gold);
+            margin: 8px 0;
+        }
+        .btn-reiniciar {
+            margin-top: 12px;
+            padding: 14px 28px;
+            border: none; border-radius: 14px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: #fff; font-weight: 800; font-size: 15px;
+            cursor: pointer;
+            box-shadow: 0 10px 25px -5px var(--primary-glow);
+            transition: transform 0.2s ease;
+            font-family: inherit;
+        }
+        .btn-reiniciar:hover { transform: scale(1.05); }
+
+        /* Responsividade */
+        @media (max-width: 400px) {
+            .cards-grid { grid-template-columns: 1fr; }
+            .card-opcao img { height: 120px; }
+            .question-box { font-size: 17px; }
+        }
     </style>
 </head>
 <body>
 
-    <div class="quiz-container">
-        <div class="progress-bar" id="bloco-indicador">Bloco 1 de 6</div>
+    <div class="quiz-container" id="quiz-container">
+        <div class="score-display" id="score-display">⭐ 0 pts</div>
+        <div class="progress-container">
+            <div class="progress-fill" id="progress-fill"></div>
+        </div>
+        <div class="progress-bar-text" id="bloco-indicador">Bloco 1 de 10</div>
         <div class="question-box" id="pergunta-texto">Carregando pergunta...</div>
         
         <div class="cards-grid" id="grid-cards">
@@ -79,36 +217,166 @@
     </div>
 
     <script>
+        // ==========================================================
+        // BANCO DE QUESTÕES - 10 BLOCOS COM IMAGENS REAIS
+        // ==========================================================
         const blocosQuiz = [
             {
                 bloco: 1,
-                pergunta: "Qual destes animais começa com a letra M?",
+                pergunta: "Qual destes animais é o Rei da Selva?",
                 opcoes: [
-                    { texto: "Macaco", img: "https://img.icons8.com/color/96/monkey.png", correto: true },
-                    { texto: "Pato", img: "https://img.icons8.com/color/96/duck.png", correto: false },
-                    { texto: "Sapo", img: "https://img.icons8.com/color/96/frog.png", correto: false },
-                    { texto: "Leão", img: "https://img.icons8.com/color/96/lion.png", correto: false }
+                    { texto: "Leão", img: "https://images.unsplash.com/photo-1546182990-dffeafbe841d?w=400&q=80", correto: true },
+                    { texto: "Elefante", img: "https://images.unsplash.com/photo-1557050543-4d5f4e07ef46?w=400&q=80", correto: false },
+                    { texto: "Girafa", img: "https://images.unsplash.com/photo-1547721064-da6cfb341d50?w=400&q=80", correto: false },
+                    { texto: "Zebra", img: "https://images.unsplash.com/photo-1526095179574-86e545346ae6?w=400&q=80", correto: false }
                 ]
             },
             {
                 bloco: 2,
-                pergunta: "Quantas estrelas estão brilhando? ⭐⭐⭐",
+                pergunta: "Qual é a cor do céu num dia de sol?",
                 opcoes: [
-                    { texto: "Duas", img: "https://img.icons8.com/color/96/2-circle.png", correto: false },
-                    { texto: "Três", img: "https://img.icons8.com/color/96/3-circle.png", correto: true },
-                    { texto: "Quatro", img: "https://img.icons8.com/color/96/4-circle.png", correto: false },
-                    { texto: "Cinco", img: "https://img.icons8.com/color/96/5-circle.png", correto: false }
+                    { texto: "Azul", img: "https://images.unsplash.com/photo-1504608524841-42fe6f032b4b?w=400&q=80", correto: true },
+                    { texto: "Verde", img: "https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=400&q=80", correto: false },
+                    { texto: "Vermelho", img: "https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f?w=400&q=80", correto: false },
+                    { texto: "Roxo", img: "https://images.unsplash.com/photo-1508614999368-9260051292e5?w=400&q=80", correto: false }
+                ]
+            },
+            {
+                bloco: 3,
+                pergunta: "Que fruta é esta? 🍎",
+                opcoes: [
+                    { texto: "Maçã", img: "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=400&q=80", correto: true },
+                    { texto: "Banana", img: "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=400&q=80", correto: false },
+                    { texto: "Laranja", img: "https://images.unsplash.com/photo-1547514701-42782101795e?w=400&q=80", correto: false },
+                    { texto: "Uva", img: "https://images.unsplash.com/photo-1537640538966-79f369143f8f?w=400&q=80", correto: false }
+                ]
+            },
+            {
+                bloco: 4,
+                pergunta: "Quantos planetas existem no Sistema Solar?",
+                opcoes: [
+                    { texto: "8 Planetas", img: "https://images.unsplash.com/photo-1614730341194-75c60740a2d8?w=400&q=80", correto: true },
+                    { texto: "5 Planetas", img: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&q=80", correto: false },
+                    { texto: "12 Planetas", img: "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=400&q=80", correto: false },
+                    { texto: "3 Planetas", img: "https://images.unsplash.com/photo-1502134249126-9f3755a50d78?w=400&q=80", correto: false }
+                ]
+            },
+            {
+                bloco: 5,
+                pergunta: "Qual destes é um meio de transporte?",
+                opcoes: [
+                    { texto: "Carro", img: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=400&q=80", correto: true },
+                    { texto: "Árvore", img: "https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=400&q=80", correto: false },
+                    { texto: "Cadeira", img: "https://images.unsplash.com/photo-1503602642458-232111445657?w=400&q=80", correto: false },
+                    { texto: "Nuvem", img: "https://images.unsplash.com/photo-1504608524841-42fe6f032b4b?w=400&q=80", correto: false }
+                ]
+            },
+            {
+                bloco: 6,
+                pergunta: "Qual é o maior animal do mundo?",
+                opcoes: [
+                    { texto: "Baleia Azul", img: "https://images.unsplash.com/photo-1568430462989-44163eb1752f?w=400&q=80", correto: true },
+                    { texto: "Elefante", img: "https://images.unsplash.com/photo-1557050543-4d5f4e07ef46?w=400&q=80", correto: false },
+                    { texto: "Tubarão", img: "https://images.unsplash.com/photo-1560275619-4662e36fa65c?w=400&q=80", correto: false },
+                    { texto: "Girafa", img: "https://images.unsplash.com/photo-1547721064-da6cfb341d50?w=400&q=80", correto: false }
+                ]
+            },
+            {
+                bloco: 7,
+                pergunta: "Que estação do ano é caracterizada pela neve?",
+                opcoes: [
+                    { texto: "Inverno", img: "https://images.unsplash.com/photo-1483664852095-d6cc6870702d?w=400&q=80", correto: true },
+                    { texto: "Verão", img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&q=80", correto: false },
+                    { texto: "Outono", img: "https://images.unsplash.com/photo-1507371341162-763b5e419408?w=400&q=80", correto: false },
+                    { texto: "Primavera", img: "https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=400&q=80", correto: false }
+                ]
+            },
+            {
+                bloco: 8,
+                pergunta: "Qual destes é um inseto?",
+                opcoes: [
+                    { texto: "Borboleta", img: "https://images.unsplash.com/photo-1444464666168-49d633b86797?w=400&q=80", correto: true },
+                    { texto: "Pássaro", img: "https://images.unsplash.com/photo-1444464666168-49d633b86797?w=400&q=80", correto: false },
+                    { texto: "Peixe", img: "https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?w=400&q=80", correto: false },
+                    { texto: "Cobra", img: "https://images.unsplash.com/photo-1531386151447-fd76ad50012f?w=400&q=80", correto: false }
+                ]
+            },
+            {
+                bloco: 9,
+                pergunta: "Que forma geométrica tem 3 lados?",
+                opcoes: [
+                    { texto: "Triângulo", img: "https://images.unsplash.com/photo-1550859492-d5da9d8e45f3?w=400&q=80", correto: true },
+                    { texto: "Quadrado", img: "https://images.unsplash.com/photo-1550859492-d5da9d8e45f3?w=400&q=80", correto: false },
+                    { texto: "Círculo", img: "https://images.unsplash.com/photo-1550859492-d5da9d8e45f3?w=400&q=80", correto: false },
+                    { texto: "Retângulo", img: "https://images.unsplash.com/photo-1550859492-d5da9d8e45f3?w=400&q=80", correto: false }
+                ]
+            },
+            {
+                bloco: 10,
+                pergunta: "Qual é o satélite natural da Terra?",
+                opcoes: [
+                    { texto: "Lua", img: "https://images.unsplash.com/photo-1522030299830-16b8d3d049fe?w=400&q=80", correto: true },
+                    { texto: "Sol", img: "https://images.unsplash.com/photo-1502134249126-9f3755a50d78?w=400&q=80", correto: false },
+                    { texto: "Marte", img: "https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?w=400&q=80", correto: false },
+                    { texto: "Júpiter", img: "https://images.unsplash.com/photo-1614730341194-75c60740a2d8?w=400&q=80", correto: false }
                 ]
             }
-            // Adicionar blocos 3, 4, 5 e 6 aqui...
         ];
 
+        // ==========================================================
+        // ESTADO DO JOGO
+        // ==========================================================
         let indiceAtual = 0;
+        let pontuacao = 0;
 
+        // ==========================================================
+        // SOM DE FEEDBACK (Web Audio API)
+        // ==========================================================
+        function tocarSom(tipo) {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                
+                if (tipo === 'acerto') {
+                    osc.frequency.setValueAtTime(523, ctx.currentTime); // C5
+                    osc.frequency.setValueAtTime(659, ctx.currentTime + 0.1); // E5
+                    osc.frequency.setValueAtTime(784, ctx.currentTime + 0.2); // G5
+                } else if (tipo === 'erro') {
+                    osc.frequency.setValueAtTime(300, ctx.currentTime);
+                    osc.frequency.setValueAtTime(200, ctx.currentTime + 0.1);
+                } else if (tipo === 'vitoria') {
+                    osc.frequency.setValueAtTime(523, ctx.currentTime);
+                    osc.frequency.setValueAtTime(659, ctx.currentTime + 0.15);
+                    osc.frequency.setValueAtTime(784, ctx.currentTime + 0.3);
+                    osc.frequency.setValueAtTime(1046, ctx.currentTime + 0.45);
+                }
+                
+                gain.gain.setValueAtTime(0.15, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+                osc.start(ctx.currentTime);
+                osc.stop(ctx.currentTime + 0.5);
+            } catch (e) {
+                console.warn("Áudio não suportado:", e);
+            }
+        }
+
+        // ==========================================================
+        // CARREGAR PERGUNTA
+        // ==========================================================
         function carregarPergunta() {
             const atual = blocosQuiz[indiceAtual];
-            document.getElementById('bloco-indicador').textContent = `Bloco ${atual.bloco} de ${blocosQuiz.length}`;
+            const total = blocosQuiz.length;
+            
+            // Atualizar textos e barra
+            document.getElementById('bloco-indicador').textContent = `Bloco ${atual.bloco} de ${total}`;
             document.getElementById('pergunta-texto').textContent = atual.pergunta;
+            document.getElementById('score-display').textContent = `⭐ ${pontuacao} pts`;
+            
+            const progresso = ((indiceAtual) / total) * 100;
+            document.getElementById('progress-fill').style.width = `${progresso}%`;
             
             const grid = document.getElementById('grid-cards');
             grid.innerHTML = '';
@@ -117,7 +385,7 @@
                 const card = document.createElement('div');
                 card.classList.add('card-opcao');
                 card.innerHTML = `
-                    <img src="${opcao.img}" alt="${opcao.texto}">
+                    <img src="${opcao.img}" alt="${opcao.texto}" loading="lazy">
                     <span>${opcao.texto}</span>
                 `;
                 card.addEventListener('click', () => selecionarResposta(opcao, card));
@@ -125,25 +393,31 @@
             });
         }
 
+        // ==========================================================
+        // SELECIONAR RESPOSTA
+        // ==========================================================
         function selecionarResposta(opcao, cardElement) {
             const cards = document.querySelectorAll('.card-opcao');
             cards.forEach(c => c.style.pointerEvents = 'none'); // Bloqueia novos cliques
 
             if (opcao.correto) {
                 cardElement.classList.add('correto');
+                tocarSom('acerto');
+                pontuacao += 10;
+                document.getElementById('score-display').textContent = `⭐ ${pontuacao} pts`;
+                
                 setTimeout(() => {
                     indiceAtual++;
                     if (indiceAtual < blocosQuiz.length) {
                         carregarPergunta();
                     } else {
-                        document.querySelector('.quiz-container').innerHTML = `
-                            <h2>🎉 Parabéns!</h2>
-                            <p>Você completou todos os blocos com sucesso e ganhou a medalha de Explorador do Saber!</p>
-                        `;
+                        mostrarTelaFinal();
                     }
-                }, 1200);
+                }, 1400);
             } else {
                 cardElement.classList.add('incorreto');
+                tocarSom('erro');
+                
                 setTimeout(() => {
                     cards.forEach(c => c.style.pointerEvents = 'auto');
                     cardElement.classList.remove('incorreto');
@@ -151,6 +425,61 @@
             }
         }
 
+        // ==========================================================
+        // TELA FINAL
+        // ==========================================================
+        function mostrarTelaFinal() {
+            const total = blocosQuiz.length;
+            const maxPontos = total * 10;
+            const percentual = (pontuacao / maxPontos) * 100;
+            
+            let medalha, titulo, mensagem;
+            if (percentual >= 90) {
+                medalha = "🏆"; titulo = "Mestre Supremo!";
+                mensagem = "Uau! Você é um verdadeiro gênio! Acertou quase tudo!";
+            } else if (percentual >= 70) {
+                medalha = "🥇"; titulo = "Explorador do Saber!";
+                mensagem = "Excelente trabalho! Você tem um conhecimento incrível!";
+            } else if (percentual >= 50) {
+                medalha = "🥈"; titulo = "Aprendiz Curioso!";
+                mensagem = "Muito bem! Continue a explorar e aprender cada vez mais!";
+            } else {
+                medalha = "🥉"; titulo = "Pequeno Aventureiro!";
+                mensagem = "Bom esforço! Tente novamente para ganhar mais estrelas!";
+            }
+            
+            tocarSom('vitoria');
+            
+            document.getElementById('quiz-container').innerHTML = `
+                <div class="final-screen">
+                    <div class="medalha">${medalha}</div>
+                    <h2>${titulo}</h2>
+                    <div class="pontuacao-final">${pontuacao} / ${maxPontos} pontos</div>
+                    <p>${mensagem}</p>
+                    <button class="btn-reiniciar" onclick="reiniciarQuiz()">🔄 Jogar Novamente</button>
+                </div>
+            `;
+        }
+
+        // ==========================================================
+        // REINICIAR
+        // ==========================================================
+        function reiniciarQuiz() {
+            indiceAtual = 0;
+            pontuacao = 0;
+            document.getElementById('quiz-container').innerHTML = `
+                <div class="score-display" id="score-display">⭐ 0 pts</div>
+                <div class="progress-container">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <div class="progress-bar-text" id="bloco-indicador">Bloco 1 de 10</div>
+                <div class="question-box" id="pergunta-texto">Carregando pergunta...</div>
+                <div class="cards-grid" id="grid-cards"></div>
+            `;
+            carregarPergunta();
+        }
+
+        // Iniciar
         carregarPergunta();
     </script>
 </body>
