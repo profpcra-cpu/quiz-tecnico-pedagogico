@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz Infantil - Descoberta Mágica</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <!-- Biblioteca de Confetes para a tela final -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root {
@@ -294,7 +293,7 @@
                 bloco: 1,
                 pergunta: "Qual destes animais é o Rei da Selva?",
                 opcoes: [
-                    { texto: "Leão",     img: "https://images.unsplash.com/photo-1546182990-dffeafbe841d?w=400&q=80", correto: true },
+                    { texto: "Leão",     img: "https://images.unsplash.com/photo-1534188752589-f2f2e693953e?w=400&q=80", correto: true },
                     { texto: "Elefante", img: "https://images.unsplash.com/photo-1557050543-4d5f4e07ef46?w=400&q=80", correto: false },
                     { texto: "Girafa",   img: "https://images.unsplash.com/photo-1547721064-da6cfb341d50?w=400&q=80", correto: false },
                     { texto: "Zebra",    img: "https://images.unsplash.com/photo-1526095179574-86e545346ae6?w=400&q=80", correto: false }
@@ -304,10 +303,10 @@
                 bloco: 2,
                 pergunta: "Qual é a cor do céu num dia de sol?",
                 opcoes: [
-                    { texto: "Azul",     img: "https://images.unsplash.com/photo-1504608524841-42fe6f032b4b?w=400&q=80", correto: true },
-                    { texto: "Verde",    img: "https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=400&q=80", correto: false },
-                    { texto: "Vermelho", img: "https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f?w=400&q=80", correto: false },
-                    { texto: "Roxo",     img: "https://images.unsplash.com/photo-1508614999368-9260051292e5?w=400&q=80", correto: false }
+                    { texto: "Azul",     img: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=400&q=80", correto: true },
+                    { texto: "Verde",    img: "https://images.unsplash.com/photo-1511497584788-876761142212?w=400&q=80", correto: false },
+                    { texto: "Vermelho", img: "https://images.unsplash.com/photo-1509114397022-ed747cca3f65?w=400&q=80", correto: false },
+                    { texto: "Roxo",     img: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=400&q=80", correto: false }
                 ]
             },
             {
@@ -399,7 +398,6 @@
         let tempoRestante = 15;
         let timerInterval = null;
 
-        // Áudio Web Audio API
         let audioCtx = null;
         function getAudioCtx() {
             if (!audioCtx) {
@@ -437,13 +435,12 @@
             });
         }
 
-        // Leitura de texto (Text-to-Speech)
         function falarTexto(texto) {
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
                 const utterance = new SpeechSynthesisUtterance(texto);
                 utterance.lang = 'pt-BR';
-                utterance.rate = 0.9; // Um pouco mais devagar para crianças
+                utterance.rate = 0.9;
                 window.speechSynthesis.speak(utterance);
             }
         }
@@ -495,12 +492,6 @@
             const cards = document.querySelectorAll('.card-opcao');
             cards.forEach(c => c.classList.add('disabled'));
 
-            // Mostra a correta
-            const atual = blocosQuiz[indiceAtual];
-            cards.forEach((card, idx) => {
-                // Se precisar destacar a correta por timeout
-            });
-
             setTimeout(() => {
                 indiceAtual++;
                 if (indiceAtual < blocosQuiz.length) {
@@ -547,9 +538,6 @@
                 grid.appendChild(card);
             });
 
-            // Opcional: fala automaticamente ao carregar (descomente se desejar)
-            // falarTexto(atual.pergunta);
-
             document.getElementById('btn-falar').onclick = () => falarTexto(atual.pergunta);
 
             iniciarTimer();
@@ -573,7 +561,6 @@
 
                 tocarSom('acerto');
                 
-                // Bônus de velocidade baseado no tempo restante
                 const bonusVelocidade = Math.floor(tempoRestante);
                 pontuacao += 10 + bonusVelocidade;
                 document.getElementById('score-display').textContent = `⭐ ${pontuacao} pts`;
@@ -606,7 +593,6 @@
         function mostrarTelaFinal() {
             clearInterval(timerInterval);
             const total = blocosQuiz.length;
-            const maxPontos = total * 20; // Estimativa com bônus
             const percentual = (pontuacao / (total * 10)) * 100;
 
             if (pontuacao > melhorPontuacao) {
@@ -631,7 +617,6 @@
 
             tocarSom('vitoria');
 
-            // Dispara confetes festivos
             if (typeof confetti === 'function') {
                 confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
             }
